@@ -19,6 +19,9 @@ spec:
         image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-despachos:latest
         ports:
         - containerPort: 8080
+        env:
+        - name: DB_PORT
+        value: "3306"
         envFrom:
         - secretRef:
             name: db-credentials
@@ -59,6 +62,9 @@ spec:
         image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-ventas:latest
         ports:
         - containerPort: 8080
+        env:
+        - name: DB_PORT
+        value: "3306"
         envFrom:
         - secretRef:
             name: db-credentials
