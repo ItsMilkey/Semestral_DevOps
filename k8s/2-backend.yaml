@@ -1,4 +1,3 @@
----
 # BACKEND DESPACHOS
 apiVersion: apps/v1
 kind: Deployment
@@ -21,7 +20,7 @@ spec:
         - containerPort: 8080
         env:
         - name: DB_PORT
-        value: "3306"
+          value: "3306"
         envFrom:
         - secretRef:
             name: db-credentials
@@ -33,7 +32,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: back-despacho-svc # El nombre exacto que pusimos en default.conf de Nginx
+  name: back-despacho-svc
 spec:
   selector:
     app: back-despachos
@@ -64,7 +63,7 @@ spec:
         - containerPort: 8080
         env:
         - name: DB_PORT
-        value: "3306"
+          value: "3306"
         envFrom:
         - secretRef:
             name: db-credentials
