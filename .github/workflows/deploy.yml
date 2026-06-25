@@ -33,7 +33,7 @@ jobs:
         ECR_REPOSITORY: back-despachos
         IMAGE_TAG: latest
       run: |
-        cd back-Despachos_SpringBoot
+        cd back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -43,7 +43,7 @@ jobs:
         ECR_REPOSITORY: back-ventas
         IMAGE_TAG: latest
       run: |
-        cd back-Ventas_SpringBoot
+        cd back-Ventas_SpringBoot/Springboot-API-REST
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
