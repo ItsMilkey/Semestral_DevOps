@@ -1,0 +1,80 @@
+---
+# BACKEND DESPACHOS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-despachos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: back-despachos
+  template:
+    metadata:
+      labels:
+        app: back-despachos
+    spec:
+      containers:
+      - name: back-despachos
+        image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-despachos:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: db-credentials
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-despacho-svc # El nombre exacto que pusimos en default.conf de Nginx
+spec:
+  selector:
+    app: back-despachos
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# BACKEND VENTAS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: back-ventas
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: back-ventas
+  template:
+    metadata:
+      labels:
+        app: back-ventas
+    spec:
+      containers:
+      - name: back-ventas
+        image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-ventas:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: db-credentials
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: back-ventas-svc
+spec:
+  selector:
+    app: back-ventas
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
