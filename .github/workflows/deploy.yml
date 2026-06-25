@@ -1,0 +1,81 @@
+name: CI/CD Pipeline EKS Innovatech
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1
+  EKS_CLUSTER_NAME: innovatech-cluster
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 1. Checkout código fuente
+      uses: actions/checkout@v3
+
+    - name: 2. Configurar credenciales de AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: 3. Iniciar sesión en Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: 4. Build y Push - Backend Despachos
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: back-despachos
+        IMAGE_TAG: latest
+      run: |
+        cd Springboot-API-REST-DESPACHO
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: 5. Build y Push - Backend Ventas
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: back-ventas
+        IMAGE_TAG: latest
+      run: |
+        cd back-Ventas_SpringBoot/Springboot-API-REST
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: 6. Build y Push - Frontend
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: front-despacho
+        IMAGE_TAG: latest
+      run: |
+        cd front_despacho
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: 7. Conectar al clúster EKS
+      run: |
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.EKS_CLUSTER_NAME }}
+
+    - name: 8. Desplegar Infraestructura en Kubernetes
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      run: |
+        # Inyectar secretos en el manifiesto de forma segura (IE5)
+        sed -i "s/\${DB_HOST}/$DB_HOST/g" k8s/1-secrets.yaml
+        sed -i "s/\${DB_USER}/$DB_USER/g" k8s/1-secrets.yaml
+        sed -i "s/\${DB_PASSWORD}/$DB_PASSWORD/g" k8s/1-secrets.yaml
+
+        # Aplicar orquestación (IE4)
+        kubectl apply -f k8s/
+
+        # Forzar a los pods a descargar la nueva imagen recién compilada
+        kubectl rollout restart deployment back-despachos
+        kubectl rollout restart deployment back-ventas
+        kubectl rollout restart deployment front-despacho
