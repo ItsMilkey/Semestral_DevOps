@@ -79,3 +79,5 @@ jobs:
         kubectl rollout restart deployment back-despachos
         kubectl rollout restart deployment back-ventas
         kubectl rollout restart deployment front-despacho
+
+        #INTENTO 2
