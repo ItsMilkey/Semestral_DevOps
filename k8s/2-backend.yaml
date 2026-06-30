@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: back-despachos
-        image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-despachos:latest
+        image: 586435708287.dkr.ecr.us-east-1.amazonaws.com/back-despachos:latest
         ports:
         - containerPort: 8080
         env:
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
       - name: back-ventas
-        image: 937177718894.dkr.ecr.us-east-1.amazonaws.com/back-ventas:latest
+        image: 586435708287.dkr.ecr.us-east-1.amazonaws.com/back-ventas:latest
         ports:
         - containerPort: 8080
         env:
